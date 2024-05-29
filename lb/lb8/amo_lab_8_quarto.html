@@ -1,0 +1,1535 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ukr" xml:lang="ukr"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.551">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Яркоий Тимофій">
+<meta name="dcterms.date" content="2024-05-29">
+<meta name="description" content="Документ зроблено за допомогою Quarto">
+
+<title>Лабораторна робота №8. Структура даних граф. Алгоритми на графах</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="amo_lab_8_quarto_files/libs/clipboard/clipboard.min.js"></script>
+<script src="amo_lab_8_quarto_files/libs/quarto-html/quarto.js"></script>
+<script src="amo_lab_8_quarto_files/libs/quarto-html/popper.min.js"></script>
+<script src="amo_lab_8_quarto_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="amo_lab_8_quarto_files/libs/quarto-html/anchor.min.js"></script>
+<link href="amo_lab_8_quarto_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="amo_lab_8_quarto_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="amo_lab_8_quarto_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="amo_lab_8_quarto_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="amo_lab_8_quarto_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#короткі-теоретичні-відомості" id="toc-короткі-теоретичні-відомості" class="nav-link active" data-scroll-target="#короткі-теоретичні-відомості">Короткі теоретичні відомості</a>
+  <ul class="collapse">
+  <li><a href="#структура-даних-граф" id="toc-структура-даних-граф" class="nav-link" data-scroll-target="#структура-даних-граф">Структура даних граф</a></li>
+  <li><a href="#операції-з-графами" id="toc-операції-з-графами" class="nav-link" data-scroll-target="#операції-з-графами">Операції з графами</a></li>
+  <li><a href="#подання-графа" id="toc-подання-графа" class="nav-link" data-scroll-target="#подання-графа">Подання графа</a></li>
+  </ul></li>
+  <li><a href="#приклад-реалізації-структури-даних-граф-на-python" id="toc-приклад-реалізації-структури-даних-граф-на-python" class="nav-link" data-scroll-target="#приклад-реалізації-структури-даних-граф-на-python">Приклад реалізації структури даних граф на Python</a>
+  <ul class="collapse">
+  <li><a href="#приклад-1.-створення-графа-з-декількома-вершинами-та-ребрами" id="toc-приклад-1.-створення-графа-з-декількома-вершинами-та-ребрами" class="nav-link" data-scroll-target="#приклад-1.-створення-графа-з-декількома-вершинами-та-ребрами"><em>Приклад 1.</em> Створення графа з декількома вершинами та ребрами</a></li>
+  <li><a href="#приклад-2.-вивід-ваг-усіх-ребер-для-певної-вершини" id="toc-приклад-2.-вивід-ваг-усіх-ребер-для-певної-вершини" class="nav-link" data-scroll-target="#приклад-2.-вивід-ваг-усіх-ребер-для-певної-вершини"><em>Приклад 2</em>. Вивід ваг усіх ребер для певної вершини:</a></li>
+  <li><a href="#приклад-3.-візуалізація-графа" id="toc-приклад-3.-візуалізація-графа" class="nav-link" data-scroll-target="#приклад-3.-візуалізація-графа"><em>Приклад 3.</em> Візуалізація графа</a></li>
+  <li><a href="#приклад-4.-візуалізація-зваженого-графа" id="toc-приклад-4.-візуалізація-зваженого-графа" class="nav-link" data-scroll-target="#приклад-4.-візуалізація-зваженого-графа"><em>Приклад 4.</em> Візуалізація зваженого графа</a></li>
+  <li><a href="#приклад-5.-робота-з-направленим-графом" id="toc-приклад-5.-робота-з-направленим-графом" class="nav-link" data-scroll-target="#приклад-5.-робота-з-направленим-графом"><em>Приклад 5.</em> Робота з направленим графом</a></li>
+  <li><a href="#приклад-6.-візуалізація-зваженого-графа" id="toc-приклад-6.-візуалізація-зваженого-графа" class="nav-link" data-scroll-target="#приклад-6.-візуалізація-зваженого-графа"><em>Приклад 6.</em> Візуалізація зваженого графа</a></li>
+  </ul></li>
+  <li><a href="#деякі-класичні-алгоритми-на-графах" id="toc-деякі-класичні-алгоритми-на-графах" class="nav-link" data-scroll-target="#деякі-класичні-алгоритми-на-графах">Деякі класичні алгоритми на графах</a>
+  <ul class="collapse">
+  <li><a href="#знаходження-найкоротших-шляхів-за-допомогою-методів-бібліотеки-networkx" id="toc-знаходження-найкоротших-шляхів-за-допомогою-методів-бібліотеки-networkx" class="nav-link" data-scroll-target="#знаходження-найкоротших-шляхів-за-допомогою-методів-бібліотеки-networkx">Знаходження найкоротших шляхів за допомогою методів бібліотеки Networkx</a></li>
+  <li><a href="#алгоритм-дейкстри" id="toc-алгоритм-дейкстри" class="nav-link" data-scroll-target="#алгоритм-дейкстри">Алгоритм Дейкстри</a></li>
+  <li><a href="#алгоритм-белмана-форда" id="toc-алгоритм-белмана-форда" class="nav-link" data-scroll-target="#алгоритм-белмана-форда">Алгоритм Белмана-Форда</a></li>
+  <li><a href="#пошук-в-глибину-dfs" id="toc-пошук-в-глибину-dfs" class="nav-link" data-scroll-target="#пошук-в-глибину-dfs">Пошук в глибину (DFS)</a></li>
+  <li><a href="#пошук-у-ширину" id="toc-пошук-у-ширину" class="nav-link" data-scroll-target="#пошук-у-ширину">Пошук у ширину</a></li>
+  <li><a href="#завдання-на-самостійну-роботу" id="toc-завдання-на-самостійну-роботу" class="nav-link" data-scroll-target="#завдання-на-самостійну-роботу">Завдання на самостійну роботу:</a></li>
+  </ul></li>
+  <li><a href="#завдання-на-лабораторну-роботу" id="toc-завдання-на-лабораторну-роботу" class="nav-link" data-scroll-target="#завдання-на-лабораторну-роботу">Завдання на лабораторну роботу</a></li>
+  <li><a href="#контрольні-запитання" id="toc-контрольні-запитання" class="nav-link" data-scroll-target="#контрольні-запитання">Контрольні запитання</a></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Лабораторна робота №8. Структура даних граф. Алгоритми на графах</h1>
+</div>
+
+<div>
+  <div class="description">
+    Документ зроблено за допомогою <a href="https://quarto.org/">Quarto</a>
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Яркоий Тимофій </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">May 29, 2024</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="короткі-теоретичні-відомості" class="level2">
+<h2 class="anchored" data-anchor-id="короткі-теоретичні-відомості">Короткі теоретичні відомості</h2>
+<section id="структура-даних-граф" class="level3">
+<h3 class="anchored" data-anchor-id="структура-даних-граф">Структура даних граф</h3>
+<p><em>Граф</em> – це абстрактний тип даних, який призначений для реалізації концепцій неорієнтованого та орієнтованого графів, що походять з теорії графів. Граф складається з вузлів і вершин.</p>
+<p><em>Вершина (вузол</em>) - головна частина графа. Може мати ім’я, яке називається «ключ». Також вершина може мати додаткову інформацію, яку ми назвемо «корисним навантаженням».</p>
+<p><em>Ребро (дуга)</em> - інша фундаментальна частина графа. Ребро, що з’єднує дві вершини, показує наявність між ними певних відносин. Ребра можуть бути одно- та двонапрямленим.</p>
+<p>Якщо всі ребра графа однонапрямлені, ми називаємо його орієнтованим графом чи диграфом (directed) 727.png).</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="amo_lab_8_quarto_files/figure-html/cell-3-1-c3f7d728-ff78-4064-b2d4-b226ae3e7a5f.png" class="img-fluid figure-img"></p>
+<figcaption>Рис. 1. Орієнтований зважений граф.png</figcaption>
+</figure>
+</div>
+<p>Ребра можуть мати вагу, що показує вартість переміщення від однієї вершини до іншої. Наприклад, у графі доріг, що зв’язують міста, вага ребра може відображати відстань між двома населеними пунктами.</p>
+<p>Формально граф може бути поданий як <span class="math inline">\(G\)</span>, де <span class="math inline">\(G=(V,E)\)</span>. Тут <span class="math inline">\(V\)</span> множинаіч вершин графа, а <span class="math inline">\(E\)</span> множинаіч ребер, що їх з’єднуютьКожнене ребро є кортежем <span class="math inline">\((v,w)\)</span>, де <span class="math inline">\(w, v \in V\)</span>. Сюди можна додавати третій компонент, що відображає вагу ребра. Підграф <span class="math inline">\(s\)</span> – це набір ребер <span class="math inline">\(e\)</span> і вершин <span class="math inline">\(v\)</span> таких, що <span class="math inline">\(e \subset E\)</span> і <span class="math inline">\(v \subset V\)</span>.</p>
+<p><em>Шлях у графі</em> – це послідовність вершин, з’єднаних ребрами. Формально шлях можна визначити, як <span class="math inline">\(w_1,w_2,...,w_n\)</span> такий, що <span class="math inline">\((w_i,w_(i+1))∈E\)</span> для всіх <span class="math inline">\(1 ≤ i ≤n-1\)</span>.</p>
+<p>Довжиною шляху без ваг є кількість у ньому ребер: <span class="math inline">\(n-1\)</span>. Зважений шлях у графі буде сумою ваг усіх ребер, що входять до нього. Наприклад, на рис. 1 шляхом із <span class="math inline">\(V_3\)</span> у <span class="math inline">\(V_1\)</span> є послідовність вершин <span class="math inline">\((V_3,V_4,V_0,V_1)\)</span>. Ребрами – <span class="math inline">\((v_3,v_4,7),(v_4,v_0,1),(v_0,v_1,5)\)</span>.</p>
+<p>Цикл у спрямованому графі починається і закінчується в одній і тій самій вершині. Наприклад, на рис. 1 циклом буде шлях <span class="math inline">\((V_5,V_2,V_3,V_5)\)</span>. Граф без циклів називається ациклічним. Орієнтований граф без циклів – це ациклічний спрямований граф або DAG (directed acyclic graph). Нижче буде показано, що з його допомогою можна розв’язати деякі важливі завдання.</p>
+</section>
+<section id="операції-з-графами" class="level3">
+<h3 class="anchored" data-anchor-id="операції-з-графами">Операції з графами</h3>
+<p><code>Graph()</code> – створює новий порожній граф.</p>
+<p><code>addVertex(vert)</code> – додає в граф об’єкт типу Vertex.</p>
+<p><code>addEdge(fromVert, toVert)</code> – додає в граф нове напрямлене ребро, що з’єднує дві вершини.</p>
+<p><code>addEdge(fromVert, toVert, weight)</code> – додає в граф нове зважене напрямлене ребро, що з’єднує дві вершини.</p>
+<p><code>getVertex(vertKey)</code> – знаходить у графі вершину <code>vertKey</code>.</p>
+<p><code>getVertices()</code> – повертає список усіх вершин графа.</p>
+<p><code>In</code> – повертає <code>True</code> для оператора форми <code>vertex in graph</code>, якщо вершина в графі є, і <code>False</code> в іншому випадку.</p>
+</section>
+<section id="подання-графа" class="level3">
+<h3 class="anchored" data-anchor-id="подання-графа">Подання графа</h3>
+<section id="матриця-суміжності" class="level4">
+<h4 class="anchored" data-anchor-id="матриця-суміжності">Матриця суміжності</h4>
+<p>Одним з найпростіших способів реалізувати граф є використання двовимірної матриці.</p>
+<p>У ній кожен рядок і стовпчик являють собою вершину графа, а збережене в комірці на перетині рядка <span class="math inline">\(v\)</span> і стовпчика <span class="math inline">\(w\)</span> значення показує, що існує ребро з вершини <span class="math inline">\(v\)</span> до вершини <span class="math inline">\(w\)</span>. Коли дві вершини з’єднані, їх уважають суміжними. Матриця суміжності для орієнтованого графа, наведеного на рис. 1, матиме такий вигляд:</p>
+<p><span class="math inline">\(\begin{pmatrix}
+0&amp;5&amp;0&amp;0&amp;0&amp;2 \\
+0&amp;0&amp;4&amp;0&amp;0&amp;0 \\
+0&amp;0&amp;0&amp;9&amp;0&amp;0 \\
+0&amp;0&amp;0&amp;0&amp;7&amp;3 \\
+1&amp;0&amp;0&amp;0&amp;0&amp;0 \\
+0&amp;0&amp;1&amp;0&amp;8&amp;0 \\
+\end{pmatrix}\)</span></p>
+</section>
+<section id="список-суміжності" class="level4">
+<h4 class="anchored" data-anchor-id="список-суміжності">Список суміжності</h4>
+<p>Для реалізації розрідженого графа простіше та ефективніше використовувати список суміжності.</p>
+<p>У цьому випадку ми зберігаємо список усіх вершин графа та для кожної вершини зберігаємо список сусідніх вершин. У нашій реалізації класу <code>Vertex()</code> буде представлений словником, де ключами будуть вершини, а значеннями – їх ваги. Наприклад, для графа, наведеного на рис. 1, це буде так:</p>
+<div id="cell-9" class="cell" data-tags="[]" data-execution_count="125">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>graph <span class="op">=</span> {</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">'V0'</span>: {<span class="st">'V1'</span>: <span class="dv">5</span>, <span class="st">'V5'</span>: <span class="dv">2</span>},</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">'V1'</span>: {<span class="st">'V2'</span>: <span class="dv">4</span>},</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">'V2'</span>: {<span class="st">'V3'</span>: <span class="dv">9</span>},</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">'V3'</span>: {<span class="st">'V4'</span>: <span class="dv">7</span>, <span class="st">'V5'</span>: <span class="dv">3</span>},</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">'V4'</span>: {<span class="st">'V0'</span>: <span class="dv">1</span>}, </span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">'V5'</span>: {<span class="st">'V2'</span>: <span class="dv">1</span>, <span class="st">'V4'</span>: <span class="dv">8</span>},</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+</section>
+</section>
+<section id="приклад-реалізації-структури-даних-граф-на-python" class="level2">
+<h2 class="anchored" data-anchor-id="приклад-реалізації-структури-даних-граф-на-python">Приклад реалізації структури даних граф на Python</h2>
+<p><code>Graph</code> – містить головний список вершин.</p>
+<p><code>Vertex</code> – подання в графі.</p>
+<div id="cell-11" class="cell" data-tags="[]" data-execution_count="128">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Vertex:</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, key):</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Конструктор класу Vertex</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.<span class="bu">id</span> <span class="op">=</span> key           <span class="co"># Ідентифікатор вершини</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.connectedTo <span class="op">=</span> {}   <span class="co"># Сусіди вершини та їх ваги</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> addNeighbor(<span class="va">self</span>, nbr, weight<span class="op">=</span><span class="dv">0</span>):</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Додає зв'язок між поточною вершиною та сусідньою вершиною</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.connectedTo[nbr] <span class="op">=</span> weight</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__str__</span>(<span class="va">self</span>):</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Подання вершини у вигляді рядка</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="bu">str</span>(<span class="va">self</span>.<span class="bu">id</span>) <span class="op">+</span> <span class="st">' connectedTo: '</span> <span class="op">+</span> <span class="bu">str</span>([x.<span class="bu">id</span> <span class="cf">for</span> x <span class="kw">in</span> <span class="va">self</span>.connectedTo])</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> getConnections(<span class="va">self</span>):</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Повертає сусідні вершини поточної вершини</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.connectedTo.keys()</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> getId(<span class="va">self</span>):</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Повертає ідентифікатор поточної вершини</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.<span class="bu">id</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> getWeight(<span class="va">self</span>, nbr):</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Повертає вагу ребра між поточною вершиною та заданою сусідньою вершиною</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.connectedTo[nbr]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Клас <code>Graph</code>, містить словник, що відображає імена вершин на їхні об’єкти. Також <code>Graph</code> надає методи для додавання вершин у граф і зв’язування їх одна з одною. Додатково ми маємо реалізацію методу <code>__iter__</code>, що полегшує ітерації по об’єктах <code>Vertex</code> у конкретному графі. Разом два методи дають змогу робити ітерації за іменами вершин або безпосередньо за об’єктами:</p>
+<div id="cell-13" class="cell" data-tags="[]" data-execution_count="131">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Graph:</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Ініціалізація порожнього словника, що відображає імена вершин на об'єкти Vertex.</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.vertList <span class="op">=</span> {}</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Ініціалізація лічильника вершин у графі.</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.numVertices <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> addVertex(<span class="va">self</span>, key):</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Збільшення лічильника вершин та створення нового об'єкта Vertex.</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.numVertices <span class="op">=</span> <span class="va">self</span>.numVertices <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>        newVertex <span class="op">=</span> Vertex(key)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Додавання нової вершини до словника.</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.vertList[key] <span class="op">=</span> newVertex</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> newVertex</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> getVertex(<span class="va">self</span>, n):</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Повертає об'єкт Vertex за його ім'ям.</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> n <span class="kw">in</span> <span class="va">self</span>.vertList:</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="va">self</span>.vertList[n]</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="va">None</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__contains__</span>(<span class="va">self</span>, n):</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Перевіряє, чи міститься вершина з заданим ім'ям у графі.</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> n <span class="kw">in</span> <span class="va">self</span>.vertList</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> addEdge(<span class="va">self</span>, f, t, cost<span class="op">=</span><span class="dv">0</span>):</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Додає зв'язок між вершинами з іменами f та t з вагою cost (за замовчуванням – 0).</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> f <span class="kw">not</span> <span class="kw">in</span> <span class="va">self</span>.vertList:</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Якщо вершини f ще немає у графі, додаємо її.</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>            nv <span class="op">=</span> <span class="va">self</span>.addVertex(f)</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> t <span class="kw">not</span> <span class="kw">in</span> <span class="va">self</span>.vertList:</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Якщо вершини t ще немає у графі, додаємо її.</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>            nv <span class="op">=</span> <span class="va">self</span>.addVertex(t)</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Додаємо зв'язок між вершинами f та t з вагою cost.</span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.vertList[f].addNeighbor(<span class="va">self</span>.vertList[t], cost)</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> getVertices(<span class="va">self</span>):</span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Повертає список імен усіх вершин у графі.</span></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.vertList.keys()</span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__iter__</span>(<span class="va">self</span>):</span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Повертає ітератор, який дозволяє ітерувати по об'єктах Vertex у графі.</span></span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="bu">iter</span>(<span class="va">self</span>.vertList.values())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Продемонструємо роботу з графом на прикладі.</p>
+<section id="приклад-1.-створення-графа-з-декількома-вершинами-та-ребрами" class="level3">
+<h3 class="anchored" data-anchor-id="приклад-1.-створення-графа-з-декількома-вершинами-та-ребрами"><em>Приклад 1.</em> Створення графа з декількома вершинами та ребрами</h3>
+<div id="cell-15" class="cell" data-tags="[]" data-execution_count="133">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Створення нового графа</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>g <span class="op">=</span> Graph()</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Додавання вершин</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">6</span>):</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    g.addVertex(i)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Додавання ребер</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>g.addEdge(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">5</span>)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>g.addEdge(<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">3</span>)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>g.addEdge(<span class="dv">2</span>, <span class="dv">4</span>, <span class="dv">2</span>)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>g.addEdge(<span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">7</span>)</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>g.addEdge(<span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">1</span>)</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>g.addEdge(<span class="dv">5</span>, <span class="dv">1</span>, <span class="dv">4</span>)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Вивід усіх вершин у графі</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Вершини у графі:"</span>, g.getVertices())</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Вивід усіх зв'язків для кожної вершини</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> vertex <span class="kw">in</span> g:</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"Для вершини"</span>, vertex.getId(), <span class="st">"з'єднані вершини:"</span>, [v.getId() <span class="cf">for</span> v <span class="kw">in</span> vertex.getConnections()])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Вершини у графі: dict_keys([1, 2, 3, 4, 5])
+Для вершини 1 з'єднані вершини: [2, 3]
+Для вершини 2 з'єднані вершини: [4]
+Для вершини 3 з'єднані вершини: [4]
+Для вершини 4 з'єднані вершини: [5]
+Для вершини 5 з'єднані вершини: [1]</code></pre>
+</div>
+</div>
+</section>
+<section id="приклад-2.-вивід-ваг-усіх-ребер-для-певної-вершини" class="level3">
+<h3 class="anchored" data-anchor-id="приклад-2.-вивід-ваг-усіх-ребер-для-певної-вершини"><em>Приклад 2</em>. Вивід ваг усіх ребер для певної вершини:</h3>
+<div id="cell-17" class="cell" data-tags="[]" data-execution_count="136">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Визначення вершини</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>vertex_id <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Отримання вершини за ідентифікатором</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>vertex <span class="op">=</span> g.getVertex(vertex_id)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Вивід ваг усіх зв'язків для цієї вершини</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Ваги зв'язків для вершини"</span>, vertex_id)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> nbr_vertex <span class="kw">in</span> vertex.getConnections():</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"З"</span>, vertex_id, <span class="st">"до"</span>, nbr_vertex.getId(), <span class="st">"вага:"</span>, vertex.getWeight(nbr_vertex))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Ваги зв'язків для вершини 1
+З 1 до 2 вага: 5
+З 1 до 3 вага: 3</code></pre>
+</div>
+</div>
+</section>
+<section id="приклад-3.-візуалізація-графа" class="level3">
+<h3 class="anchored" data-anchor-id="приклад-3.-візуалізація-графа"><em>Приклад 3.</em> Візуалізація графа</h3>
+<div id="cell-19" class="cell" data-tags="[]" data-execution_count="138">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> networkx <span class="im">as</span> nx</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Створюємо граф</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>G <span class="op">=</span> nx.Graph()</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Додаємо ребра</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>edges <span class="op">=</span> [(<span class="dv">1</span>, <span class="dv">2</span>), (<span class="dv">1</span>, <span class="dv">3</span>), (<span class="dv">2</span>, <span class="dv">4</span>), (<span class="dv">3</span>, <span class="dv">4</span>), (<span class="dv">4</span>, <span class="dv">5</span>), (<span class="dv">5</span>, <span class="dv">1</span>)]</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Додаємо ребра до графа</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>G.add_edges_from(edges)</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Візуалізуємо граф</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>nx.draw(G, with_labels<span class="op">=</span><span class="va">True</span>, node_size<span class="op">=</span><span class="dv">1000</span>, node_color<span class="op">=</span><span class="st">"skyblue"</span>, font_size<span class="op">=</span><span class="dv">12</span>, font_weight<span class="op">=</span><span class="st">"bold"</span>)</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Візуалізація графа"</span>)</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="amo_lab_8_quarto_files/figure-html/cell-7-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="приклад-4.-візуалізація-зваженого-графа" class="level3">
+<h3 class="anchored" data-anchor-id="приклад-4.-візуалізація-зваженого-графа"><em>Приклад 4.</em> Візуалізація зваженого графа</h3>
+<div id="cell-21" class="cell" data-tags="[]" data-execution_count="142">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> networkx <span class="im">as</span> nx</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Створюємо граф</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>G <span class="op">=</span> nx.Graph()</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Додаємо ребра з вагами</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>edges <span class="op">=</span> [(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">5</span>), (<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">3</span>), (<span class="dv">2</span>, <span class="dv">4</span>, <span class="dv">2</span>), (<span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">7</span>), (<span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">1</span>), (<span class="dv">5</span>, <span class="dv">1</span>, <span class="dv">4</span>)]</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Додаємо ребра з вагами до графа</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> edge <span class="kw">in</span> edges:</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    G.add_edge(edge[<span class="dv">0</span>], edge[<span class="dv">1</span>], weight<span class="op">=</span>edge[<span class="dv">2</span>])</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Визначаємо позиції вершин у графі</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>pos <span class="op">=</span> nx.spring_layout(G)</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Візуалізуємо граф</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>nx.draw(G, pos, with_labels<span class="op">=</span><span class="va">True</span>, node_size<span class="op">=</span><span class="dv">1000</span>, node_color<span class="op">=</span><span class="st">"skyblue"</span>, font_size<span class="op">=</span><span class="dv">12</span>, font_weight<span class="op">=</span><span class="st">"bold"</span>)</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Додаємо ваги ребер</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>labels <span class="op">=</span> nx.get_edge_attributes(G, <span class="st">'weight'</span>)</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>nx.draw_networkx_edge_labels(G, pos, edge_labels<span class="op">=</span>labels)</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Візуалізація графа з вагами ребер"</span>)</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="amo_lab_8_quarto_files/figure-html/cell-8-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="приклад-5.-робота-з-направленим-графом" class="level3">
+<h3 class="anchored" data-anchor-id="приклад-5.-робота-з-направленим-графом"><em>Приклад 5.</em> Робота з направленим графом</h3>
+<div id="cell-23" class="cell" data-tags="[]" data-execution_count="144">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Vertex:</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, key):</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Ініціалізація об'єкта вершини</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.<span class="bu">id</span> <span class="op">=</span> key  <span class="co"># Ідентифікатор вершини</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.connectedTo <span class="op">=</span> {}  <span class="co"># Список сусідніх вершин та їх ваги</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> addNeighbor(<span class="va">self</span>, nbr, weight<span class="op">=</span><span class="dv">0</span>):</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Додавання сусідньої вершини та ваги ребра до поточної вершини</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.connectedTo[nbr] <span class="op">=</span> weight</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__str__</span>(<span class="va">self</span>):</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Подання вершини у вигляді рядка</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="bu">str</span>(<span class="va">self</span>.<span class="bu">id</span>) <span class="op">+</span> <span class="st">' connectedTo: '</span> <span class="op">+</span> <span class="bu">str</span>([(x.<span class="bu">id</span>, weight) <span class="cf">for</span> x, weight <span class="kw">in</span> <span class="va">self</span>.connectedTo.items()])</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> getConnections(<span class="va">self</span>):</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Повертає список сусідніх вершин</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.connectedTo.keys()</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> getId(<span class="va">self</span>):</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Повертає ідентифікатор поточної вершини</span></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.<span class="bu">id</span></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> getWeight(<span class="va">self</span>, nbr):</span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Повертає вагу ребра між поточною вершиною та заданою сусідньою вершиною</span></span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.connectedTo[nbr]</span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Graph:</span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, directed<span class="op">=</span><span class="va">False</span>):</span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Ініціалізація графа</span></span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.vertList <span class="op">=</span> {}  <span class="co"># Словник вершин</span></span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.numVertices <span class="op">=</span> <span class="dv">0</span>  <span class="co"># Лічильник вершин</span></span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.directed <span class="op">=</span> directed  <span class="co"># Прапорець для вказівки напрямку графа</span></span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> addVertex(<span class="va">self</span>, key):</span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Додавання вершини до графа</span></span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.numVertices <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>        newVertex <span class="op">=</span> Vertex(key)  <span class="co"># Створення нової вершини</span></span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.vertList[key] <span class="op">=</span> newVertex  <span class="co"># Додавання вершини до словника</span></span>
+<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> newVertex</span>
+<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> getVertex(<span class="va">self</span>, n):</span>
+<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Повертає вершину за заданим ключем</span></span>
+<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.vertList.get(n)</span>
+<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__contains__</span>(<span class="va">self</span>, n):</span>
+<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Перевіряє, чи міститься вершина у графі</span></span>
+<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> n <span class="kw">in</span> <span class="va">self</span>.vertList</span>
+<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> addEdge(<span class="va">self</span>, f, t, cost<span class="op">=</span><span class="dv">0</span>):</span>
+<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Додавання ребра між вершинами f та t</span></span>
+<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> f <span class="kw">not</span> <span class="kw">in</span> <span class="va">self</span>.vertList:</span>
+<span id="cb10-53"><a href="#cb10-53" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.addVertex(f)  <span class="co"># Додавання вершини f, якщо вона ще не існує</span></span>
+<span id="cb10-54"><a href="#cb10-54" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> t <span class="kw">not</span> <span class="kw">in</span> <span class="va">self</span>.vertList:</span>
+<span id="cb10-55"><a href="#cb10-55" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.addVertex(t)  <span class="co"># Додавання вершини t, якщо вона ще не існує</span></span>
+<span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.vertList[f].addNeighbor(<span class="va">self</span>.vertList[t], cost)  <span class="co"># Додавання сусідньої вершини до вершини f</span></span>
+<span id="cb10-57"><a href="#cb10-57" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">not</span> <span class="va">self</span>.directed:</span>
+<span id="cb10-58"><a href="#cb10-58" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Якщо граф не напрямлений, то додаємо зворотне ребро з вершини t до вершини f</span></span>
+<span id="cb10-59"><a href="#cb10-59" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.vertList[t].addNeighbor(<span class="va">self</span>.vertList[f], cost)</span>
+<span id="cb10-60"><a href="#cb10-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-61"><a href="#cb10-61" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> getVertices(<span class="va">self</span>):</span>
+<span id="cb10-62"><a href="#cb10-62" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Повертає список вершин у графі</span></span>
+<span id="cb10-63"><a href="#cb10-63" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.vertList.keys()</span>
+<span id="cb10-64"><a href="#cb10-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-65"><a href="#cb10-65" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__iter__</span>(<span class="va">self</span>):</span>
+<span id="cb10-66"><a href="#cb10-66" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Перевизначення ітератора для графа</span></span>
+<span id="cb10-67"><a href="#cb10-67" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="bu">iter</span>(<span class="va">self</span>.vertList.values())</span>
+<span id="cb10-68"><a href="#cb10-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-69"><a href="#cb10-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-70"><a href="#cb10-70" aria-hidden="true" tabindex="-1"></a><span class="co"># Створення графа</span></span>
+<span id="cb10-71"><a href="#cb10-71" aria-hidden="true" tabindex="-1"></a>graph <span class="op">=</span> {</span>
+<span id="cb10-72"><a href="#cb10-72" aria-hidden="true" tabindex="-1"></a>    <span class="st">'V0'</span>: {<span class="st">'V1'</span>: <span class="dv">5</span>, <span class="st">'V5'</span>: <span class="dv">2</span>},</span>
+<span id="cb10-73"><a href="#cb10-73" aria-hidden="true" tabindex="-1"></a>    <span class="st">'V1'</span>: {<span class="st">'V2'</span>: <span class="dv">4</span>},</span>
+<span id="cb10-74"><a href="#cb10-74" aria-hidden="true" tabindex="-1"></a>    <span class="st">'V2'</span>: {<span class="st">'V3'</span>: <span class="dv">9</span>},</span>
+<span id="cb10-75"><a href="#cb10-75" aria-hidden="true" tabindex="-1"></a>    <span class="st">'V3'</span>: {<span class="st">'V4'</span>: <span class="dv">7</span>, <span class="st">'V5'</span>: <span class="dv">3</span>},</span>
+<span id="cb10-76"><a href="#cb10-76" aria-hidden="true" tabindex="-1"></a>    <span class="st">'V4'</span>: {<span class="st">'V0'</span>: <span class="dv">1</span>}, </span>
+<span id="cb10-77"><a href="#cb10-77" aria-hidden="true" tabindex="-1"></a>    <span class="st">'V5'</span>: {<span class="st">'V2'</span>: <span class="dv">1</span>, <span class="st">'V4'</span>: <span class="dv">8</span>},</span>
+<span id="cb10-78"><a href="#cb10-78" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-79"><a href="#cb10-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-80"><a href="#cb10-80" aria-hidden="true" tabindex="-1"></a>myGraph <span class="op">=</span> Graph(directed<span class="op">=</span><span class="va">True</span>)  <span class="co"># Створення направленого графа</span></span>
+<span id="cb10-81"><a href="#cb10-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-82"><a href="#cb10-82" aria-hidden="true" tabindex="-1"></a><span class="co"># Додавання ребер до графа на основі поданого словника</span></span>
+<span id="cb10-83"><a href="#cb10-83" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> vertex, neighbors <span class="kw">in</span> graph.items():</span>
+<span id="cb10-84"><a href="#cb10-84" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> neighbor, weight <span class="kw">in</span> neighbors.items():</span>
+<span id="cb10-85"><a href="#cb10-85" aria-hidden="true" tabindex="-1"></a>        myGraph.addEdge(vertex, neighbor, weight)</span>
+<span id="cb10-86"><a href="#cb10-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-87"><a href="#cb10-87" aria-hidden="true" tabindex="-1"></a><span class="co"># Виведення графа</span></span>
+<span id="cb10-88"><a href="#cb10-88" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> vertex <span class="kw">in</span> myGraph:</span>
+<span id="cb10-89"><a href="#cb10-89" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(vertex)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>V0 connectedTo: [('V1', 5), ('V5', 2)]
+V1 connectedTo: [('V2', 4)]
+V5 connectedTo: [('V2', 1), ('V4', 8)]
+V2 connectedTo: [('V3', 9)]
+V3 connectedTo: [('V4', 7), ('V5', 3)]
+V4 connectedTo: [('V0', 1)]</code></pre>
+</div>
+</div>
+</section>
+<section id="приклад-6.-візуалізація-зваженого-графа" class="level3">
+<h3 class="anchored" data-anchor-id="приклад-6.-візуалізація-зваженого-графа"><em>Приклад 6.</em> Візуалізація зваженого графа</h3>
+<div id="cell-25" class="cell" data-tags="[]" data-execution_count="147">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> networkx <span class="im">as</span> nx</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Граф з вагами ребер</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>graph <span class="op">=</span> {</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">'V0'</span>: {<span class="st">'V1'</span>: <span class="dv">5</span>, <span class="st">'V5'</span>: <span class="dv">2</span>},</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">'V1'</span>: {<span class="st">'V2'</span>: <span class="dv">4</span>},</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">'V2'</span>: {<span class="st">'V3'</span>: <span class="dv">9</span>},</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">'V3'</span>: {<span class="st">'V4'</span>: <span class="dv">7</span>, <span class="st">'V5'</span>: <span class="dv">3</span>},</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">'V4'</span>: {<span class="st">'V0'</span>: <span class="dv">1</span>}, </span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">'V5'</span>: {<span class="st">'V2'</span>: <span class="dv">1</span>, <span class="st">'V4'</span>: <span class="dv">8</span>},</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Створення направленого графа</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>G <span class="op">=</span> nx.DiGraph()</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Додавання вершин та ребер до графа</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> vertex, neighbors <span class="kw">in</span> graph.items():</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> neighbor, weight <span class="kw">in</span> neighbors.items():</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>        G.add_edge(vertex, neighbor, weight<span class="op">=</span>weight)</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Візуалізація графа</span></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>pos <span class="op">=</span> nx.spring_layout(G)  <span class="co"># Позиціонування вершин графа</span></span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>nx.draw(G, pos, with_labels<span class="op">=</span><span class="va">True</span>, node_size<span class="op">=</span><span class="dv">1000</span>, node_color<span class="op">=</span><span class="st">"skyblue"</span>, font_size<span class="op">=</span><span class="dv">12</span>, font_weight<span class="op">=</span><span class="st">"bold"</span>)  <span class="co"># Візуалізація графа</span></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>labels <span class="op">=</span> nx.get_edge_attributes(G, <span class="st">'weight'</span>)  <span class="co"># Отримання ваг ребер</span></span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>nx.draw_networkx_edge_labels(G, pos, edge_labels<span class="op">=</span>labels)  <span class="co"># Візуалізація ваг ребер</span></span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>plt.show()  <span class="co"># Відображення графа</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="amo_lab_8_quarto_files/figure-html/cell-10-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="деякі-класичні-алгоритми-на-графах" class="level2">
+<h2 class="anchored" data-anchor-id="деякі-класичні-алгоритми-на-графах">Деякі класичні алгоритми на графах</h2>
+<section id="знаходження-найкоротших-шляхів-за-допомогою-методів-бібліотеки-networkx" class="level3">
+<h3 class="anchored" data-anchor-id="знаходження-найкоротших-шляхів-за-допомогою-методів-бібліотеки-networkx">Знаходження найкоротших шляхів за допомогою методів бібліотеки Networkx</h3>
+<p>Для цього застосуємо спеціалізовану бібліотеку <code>NetworkX</code>.</p>
+<p>Бібліотека <code>NetworkX</code> для Python – це потужний інструмент для роботи з графами та мережами. Вона надає різноманітні функції для створення, аналізу та візуалізації графів.</p>
+<p><code>NetworkX</code> підтримує різні типи графів, у тому числі орієнтовані та неорієнтовані, зважені та незважені, мультіграфи та інші. Вона має велику кількість вбудованих алгоритмів для роботи з графами, таких як пошук найкоротших шляхів, центральності вершин, знаходження підграфів та інші. <code>NetworkX</code> також підтримує візуалізацію графів за допомогою різних графічних бібліотек, таких як <code>Matplotlib</code>. Вона є відкритою та широко використовується у наукових дослідженнях, інженерії та інших галузях.</p>
+</section>
+<section id="алгоритм-дейкстри" class="level3">
+<h3 class="anchored" data-anchor-id="алгоритм-дейкстри">Алгоритм Дейкстри</h3>
+<p>Нижче наведено код обчислення найкоротшого шляху за допомогою алгоритму Дейкстри від вершини <code>0</code> до всіх інших вершин. Результати зберігаються у змінних <code>length</code> (довжини шляхів) і <code>path</code> (списки вершин, які складають шляхи).</p>
+<div id="cell-29" class="cell" data-tags="[]" data-execution_count="151">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> networkx <span class="im">as</span> nx</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Створюємо граф G (шляховий граф з 5 вершинами)</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>G <span class="op">=</span> nx.path_graph(<span class="dv">5</span>)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Візуалізуємо граф</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>pos <span class="op">=</span> nx.spring_layout(G)  <span class="co"># Позиціонування вершин графа</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>nx.draw(G, pos, with_labels<span class="op">=</span><span class="va">True</span>, node_size<span class="op">=</span><span class="dv">1000</span>, node_color<span class="op">=</span><span class="st">"skyblue"</span>, font_size<span class="op">=</span><span class="dv">12</span>, font_weight<span class="op">=</span><span class="st">"bold"</span>)  <span class="co"># Візуалізація графа</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>plt.show()  <span class="co"># Відображення графа</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Знаходимо найкоротший шлях від вершини 0 до всіх інших вершин та їх довжини</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>length, path <span class="op">=</span> nx.single_source_dijkstra(G, <span class="dv">0</span>)</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Виводимо довжину найкоротшого шляху від вершини 0 до вершини 4</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(length[<span class="dv">4</span>])</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Виводимо всі довжини найкоротших шляхів від вершини 0 до всіх інших вершин</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(length)</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Знаходимо найкоротший шлях від вершини 1 до всіх інших вершин та їх довжини</span></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>nx.single_source_dijkstra(G, source<span class="op">=</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="amo_lab_8_quarto_files/figure-html/cell-11-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>4
+{0: 0, 1: 1, 2: 2, 3: 3, 4: 4}</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="151">
+<pre><code>({1: 0, 0: 1, 2: 1, 3: 2, 4: 3},
+ {1: [1], 0: [1, 0], 2: [1, 2], 3: [1, 2, 3], 4: [1, 2, 3, 4]})</code></pre>
+</div>
+</div>
+</section>
+<section id="алгоритм-белмана-форда" class="level3">
+<h3 class="anchored" data-anchor-id="алгоритм-белмана-форда">Алгоритм Белмана-Форда</h3>
+<p>Його складність <span class="math inline">\(O(|V||E|)\)</span> (гірше, ніж у алгоритму Дейкстри), проте він <em>дозволяє працювати з негативними вагами</em>. Нижче наведено код обчислення найкоротшого шляху за допомогою алгоритма Беллмана–Форда.</p>
+<div id="cell-31" class="cell" data-tags="[]" data-execution_count="154">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> networkx <span class="im">as</span> nx</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Створюємо граф G (шляховий граф з 5 вершинами)</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>G <span class="op">=</span> nx.path_graph(<span class="dv">5</span>)</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Знаходимо найкоротший шлях від вершини 0 до всіх інших вершин та їх довжини</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>length <span class="op">=</span> nx.single_source_bellman_ford_path_length(G, <span class="dv">0</span>)</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Виводимо довжину найкоротшого шляху від вершини 0 до вершини 4</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(length[<span class="dv">4</span>])</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Виводимо всі довжини найкоротших шляхів від вершини 0 до всіх інших вершин</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(length)</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Знаходимо найкоротший шлях від вершини 1 до всіх інших вершин та їх довжини</span></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>nx.single_source_bellman_ford_path_length(G, source<span class="op">=</span><span class="dv">1</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>4
+{0: 0, 1: 1, 2: 2, 3: 3, 4: 4}</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="154">
+<pre><code>{1: 0, 0: 1, 2: 1, 3: 2, 4: 3}</code></pre>
+</div>
+</div>
+</section>
+<section id="пошук-в-глибину-dfs" class="level3">
+<h3 class="anchored" data-anchor-id="пошук-в-глибину-dfs">Пошук в глибину (DFS)</h3>
+<p><em>Пошук у глибину (Depth-first search, DFS)</em> – один з методів обходу графа. Стратегія пошуку в глибину, як можна зрозуміти з її назви, полягає у тому, щоб проникнути «вглиб» графа настільки, наскільки це можливо. Під час виконання алгоритму пошуку використовується рекурсивний підхід: перебираються всі ребра, що виходять з поточної вершини. Якщо ребро вказує на вершину, яка ще не була розглянута, то запускається алгоритм пошуку від цієї нової вершини. Після завершення виконання алгоритму повертаємося і продовжуємо перебирати ребра. Повернення відбувається, коли в поточній вершині більше не залишилося ребер, що вказують на невідвідану вершину. Якщо після завершення алгоритму ще залишилися невідвідані вершини, то необхідно запустити алгоритм пошуку від однієї з цих вершин.</p>
+<p>Основна мета алгоритму DFS полягає в тому, щоб систематично відвідувати всі вершини та ребра графа. Це може бути використано для вирішення різних задач, таких як: * Пошук шляху або циклу в графі* . Визначення компонентів зв’язності граф* а. Пошук компонентів сильної зв’язності в оргра* фі. Визначення артикуляційних вершин та мостів в гр* афі. Пошук топологічного порядку в DAG (Directed Acyclic Graph) тощо. DFS може бути використаний для різних задач з обробки графів та вирішення багатьох алгоритмічних проблем.</p>
+<p>Розглянемо приклад. Спочатку необхідно візуалізувати граф, який складається з шести вершин і шести ребер. Кожна вершина має бути позначена великою літерою (A, B, C, D, E, F), а ребра між вершинами мають бути зображені лініями. До того ж, граф повинен бути побудований з використанням алгоритму весняного розташування для розміщення вершин на площині. Величина вершин повинна бути задана значенням 700, а розміри міток вершин – шрифтом розміром 20 із сімейством шрифту sans-serif.</p>
+<div id="cell-33" class="cell" data-tags="[]" data-execution_count="157">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Виклик magic-команди, яка автоматично відображає графіки у рядку</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>matplotlib inline</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Імпорт необхідних бібліотек</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> networkx <span class="im">as</span> nx</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Створення пустого графа</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>G <span class="op">=</span> nx.Graph()</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Додавання вершин та ребер</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>G.add_nodes_from([<span class="st">'A'</span>, <span class="st">'B'</span>, <span class="st">'C'</span>, <span class="st">'D'</span>, <span class="st">'E'</span>, <span class="st">'F'</span>])</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>G.add_edges_from([(<span class="st">'A'</span>, <span class="st">'B'</span>), (<span class="st">'A'</span>, <span class="st">'C'</span>), (<span class="st">'B'</span>, <span class="st">'D'</span>),</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>                  (<span class="st">'B'</span>, <span class="st">'E'</span>), (<span class="st">'C'</span>, <span class="st">'F'</span>), (<span class="st">'E'</span>, <span class="st">'F'</span>)])</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Визначення позицій вершин для відображення графа</span></span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>pos <span class="op">=</span> nx.spring_layout(G)</span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Візуалізація вершин та їх міток</span></span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>nx.draw_networkx_nodes(G, pos, node_size<span class="op">=</span><span class="dv">700</span>)</span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>nx.draw_networkx_labels(G, pos, font_size<span class="op">=</span><span class="dv">20</span>, font_family<span class="op">=</span><span class="st">'sans-serif'</span>)</span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Візуалізація ребер</span></span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a>nx.draw_networkx_edges(G, pos, edgelist<span class="op">=</span>G.edges())</span>
+<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Показ графіка</span></span>
+<span id="cb19-27"><a href="#cb19-27" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="amo_lab_8_quarto_files/figure-html/cell-13-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><em>Розглянемо задачу знаходження всіх можливих шляхів від вершини C до вершини F в зазначеному графі</em>.</p>
+<p>Для цього використовується алгоритм пошуку в глибину (DFS), який дозволяє обійти всі вершини графа та знайти всі можливі шляхи між двома заданими вершинами.</p>
+<div id="cell-35" class="cell" data-tags="[]" data-execution_count="163">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Функція dfs використовує алгоритм пошуку в глибину (DFS) для обходу графа.</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Починаючи з вершини start, вона відвідує всі вершини графа, до яких можна дійти з цієї вершини,</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="co"># та повертає список відвіданих вершин.</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> dfs(graph, start, visited<span class="op">=</span><span class="va">None</span>):</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> visited <span class="kw">is</span> <span class="va">None</span>:</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>        visited <span class="op">=</span> <span class="bu">set</span>()  <span class="co"># Створюємо пустий набір для збереження відвіданих вершин</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    visited.add(start)  <span class="co"># Додаємо поточну вершину до відвіданих</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Перебираємо всі сусідні вершини поточної вершини</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="bu">next</span> <span class="kw">in</span> <span class="bu">set</span>(graph.adj[start].keys()) <span class="op">-</span> visited:</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Рекурсивно викликаємо функцію dfs для наступної вершини</span></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>        dfs(graph, <span class="bu">next</span>, visited)</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> visited</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Викликаємо функцію dfs з графом G та початковою вершиною 'C'</span></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>dfs(G, <span class="st">'C'</span>)</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Функція dfs_paths також використовує алгоритм пошуку в глибину (DFS),</span></span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a><span class="co"># але вона знаходить всі можливі шляхи з початкової вершини до цільової вершини.</span></span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Параметр path використовується для зберігання поточного шляху.</span></span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> dfs_paths(graph, start, goal, path<span class="op">=</span><span class="va">None</span>):</span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> path <span class="kw">is</span> <span class="va">None</span>:</span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a>        path <span class="op">=</span> [start]  <span class="co"># Починаємо з початкової вершини</span></span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> start <span class="op">==</span> goal:</span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a>        <span class="cf">yield</span> path  <span class="co"># Якщо досягли цільової вершини, повертаємо шлях</span></span>
+<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Перебираємо всі сусідні вершини поточної вершини, які ще не відвідані</span></span>
+<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="bu">next</span> <span class="kw">in</span> <span class="bu">set</span>(graph.adj[start].keys()) <span class="op">-</span> <span class="bu">set</span>(path):</span>
+<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Рекурсивно викликаємо функцію dfs_paths для наступної вершини</span></span>
+<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a>        <span class="cf">yield</span> <span class="cf">from</span> dfs_paths(graph, <span class="bu">next</span>, goal, path <span class="op">+</span> [<span class="bu">next</span>])</span>
+<span id="cb20-29"><a href="#cb20-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-30"><a href="#cb20-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Викликаємо функцію dfs_paths з графом G, початковою вершиною 'C' та цільовою вершиною 'F'</span></span>
+<span id="cb20-31"><a href="#cb20-31" aria-hidden="true" tabindex="-1"></a><span class="bu">list</span>(dfs_paths(G, <span class="st">'C'</span>, <span class="st">'F'</span>))</span>
+<span id="cb20-32"><a href="#cb20-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-33"><a href="#cb20-33" aria-hidden="true" tabindex="-1"></a>[[<span class="st">'C'</span>, <span class="st">'F'</span>], [<span class="st">'C'</span>, <span class="st">'A'</span>, <span class="st">'B'</span>, <span class="st">'E'</span>, <span class="st">'F'</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="163">
+<pre><code>[['C', 'F'], ['C', 'A', 'B', 'E', 'F']]</code></pre>
+</div>
+</div>
+</section>
+<section id="пошук-у-ширину" class="level3">
+<h3 class="anchored" data-anchor-id="пошук-у-ширину">Пошук у ширину</h3>
+<ul>
+<li><p>Пошук у ширину (breadth-first search, BFS)* – це метод обходу графа та пошуку шляхів у ньому. Він відповідає за послідовний перегляд рівнів графа, розпочинаючи з вихідного вузла <span class="math inline">\(u\)</span>.</p></li>
+<li><p>На кожному кроці алгоритму розглядаються всі ребра$ (u,v<span class="math inline">\(), що виходять з вузла\)</span> <span class="math inline">\(u. Якщо наступний вузол\)</span> $v є цільовим вузлом, то пошук завершується</p></li>
+<li><p>в іншому випадку вузол$ <span class="math inline">\(v додається в чергу для подальшого розгляду. Після перевірки всіх ребер, що виходять з вузла\)</span> <span class="math inline">\(u, з черги вилучається наступний вузол\)</span> $u, і процес повторюється.</p></li>
+</ul>
+<div id="cell-37" class="cell" data-tags="[]" data-execution_count="166">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> bfs_paths(graph, start, goal):</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Створення черги з початковою вершиною та її шляхом</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    queue <span class="op">=</span> [(start, [start])]</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Поки черга не порожня</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> queue:</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Вибір вершини та її шляху спочатку черги</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>        (vertex, path) <span class="op">=</span> queue.pop(<span class="dv">0</span>)</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Для кожної сусідньої вершини</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> <span class="bu">next</span> <span class="kw">in</span> <span class="bu">set</span>(graph.adj[vertex].keys()) <span class="op">-</span> <span class="bu">set</span>(path):</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Якщо сусідня вершина є цільовою</span></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="bu">next</span> <span class="op">==</span> goal:</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>                <span class="co"># Повернення шляху, якщо досягнуто цільову вершину</span></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>                <span class="cf">yield</span> path <span class="op">+</span> [<span class="bu">next</span>]</span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span>:</span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>                <span class="co"># Додавання сусідньої вершини та нового шляху в чергу</span></span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>                queue.append((<span class="bu">next</span>, path <span class="op">+</span> [<span class="bu">next</span>]))</span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Виведення усіх шляхів від вершини 'A' до вершини 'F' за допомогою пошуку в ширину</span></span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a><span class="bu">list</span>(bfs_paths(G, <span class="st">'A'</span>, <span class="st">'F'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="166">
+<pre><code>[['A', 'C', 'F'], ['A', 'B', 'E', 'F']]</code></pre>
+</div>
+</div>
+</section>
+<section id="завдання-на-самостійну-роботу" class="level3">
+<h3 class="anchored" data-anchor-id="завдання-на-самостійну-роботу">Завдання на самостійну роботу:</h3>
+<p><strong>Завдання на самостійну роботу</strong>:</p>
+<ul>
+<li>Для варіанта, заданого викладачем, задати і візуалізувати граф за допомогою коду, наведеного у цій роботі</li>
+<li><ol start="2" type="1">
+<li>Для свого варіанта реалізувати всі алгоритми, згідно з прикладами, наведеними вище</li>
+</ol></li>
+</ul>
+<section id="візуалізувати-граф-1310-1415-1520-2325-2430-2535" class="level4">
+<h4 class="anchored" data-anchor-id="візуалізувати-граф-1310-1415-1520-2325-2430-2535">Візуалізувати граф [(1,3,10), (1,4,15), (1,5,20), (2,3,25), (2,4,30), (2,5,35)]</h4>
+<div id="cell-41" class="cell" data-tags="[]" data-execution_count="171">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> networkx <span class="im">as</span> nx</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Створюємо граф</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>G <span class="op">=</span> nx.Graph()</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Додаємо ребра з вагами</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>edges <span class="op">=</span> [(<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">10</span>), (<span class="dv">1</span>,<span class="dv">4</span>,<span class="dv">15</span>), (<span class="dv">1</span>,<span class="dv">5</span>,<span class="dv">20</span>), (<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">25</span>), (<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">30</span>), (<span class="dv">2</span>,<span class="dv">5</span>,<span class="dv">35</span>)]</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Додаємо ребра з вагами до графа</span></span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> edge <span class="kw">in</span> edges:</span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>    G.add_edge(edge[<span class="dv">0</span>], edge[<span class="dv">1</span>], weight<span class="op">=</span>edge[<span class="dv">2</span>])</span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Визначаємо позиції вершин у графі</span></span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>pos <span class="op">=</span> nx.spring_layout(G)</span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Візуалізуємо граф</span></span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a>nx.draw(G, pos, with_labels<span class="op">=</span><span class="va">True</span>, node_size<span class="op">=</span><span class="dv">1000</span>, node_color<span class="op">=</span><span class="st">"skyblue"</span>, font_size<span class="op">=</span><span class="dv">12</span>, font_weight<span class="op">=</span><span class="st">"bold"</span>)</span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Додаємо ваги ребер</span></span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a>labels <span class="op">=</span> nx.get_edge_attributes(G, <span class="st">'weight'</span>)</span>
+<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a>nx.draw_networkx_edge_labels(G, pos, edge_labels<span class="op">=</span>labels)</span>
+<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Візуалізація графа з вагами ребер"</span>)</span>
+<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="amo_lab_8_quarto_files/figure-html/cell-16-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="для-свого-варіанта-реалізувати-всі-алгоритми-згідно-з-прикладами-наведеними-вище" class="level4">
+<h4 class="anchored" data-anchor-id="для-свого-варіанта-реалізувати-всі-алгоритми-згідно-з-прикладами-наведеними-вище">Для свого варіанта реалізувати всі алгоритми, згідно з прикладами, наведеними вище</h4>
+<p>Алгоритм Дейкстри</p>
+<div id="cell-44" class="cell" data-tags="[]" data-execution_count="174">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> networkx <span class="im">as</span> nx</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Створюємо граф</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>G <span class="op">=</span> nx.Graph()</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Додаємо ребра з вагами</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>edges <span class="op">=</span> [(<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">10</span>), (<span class="dv">1</span>,<span class="dv">4</span>,<span class="dv">15</span>), (<span class="dv">1</span>,<span class="dv">5</span>,<span class="dv">20</span>), (<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">25</span>), (<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">30</span>), (<span class="dv">2</span>,<span class="dv">5</span>,<span class="dv">35</span>)]</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Додаємо ребра з вагами до графа</span></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> edge <span class="kw">in</span> edges:</span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>    G.add_edge(edge[<span class="dv">0</span>], edge[<span class="dv">1</span>], weight<span class="op">=</span>edge[<span class="dv">2</span>])</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Визначаємо позиції вершин у графі</span></span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>pos <span class="op">=</span> nx.spring_layout(G)</span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Візуалізуємо граф</span></span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>nx.draw(G, pos, with_labels<span class="op">=</span><span class="va">True</span>, node_size<span class="op">=</span><span class="dv">1000</span>, node_color<span class="op">=</span><span class="st">"skyblue"</span>, font_size<span class="op">=</span><span class="dv">12</span>, font_weight<span class="op">=</span><span class="st">"bold"</span>)</span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Додаємо ваги ребер</span></span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a>labels <span class="op">=</span> nx.get_edge_attributes(G, <span class="st">'weight'</span>)</span>
+<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a>nx.draw_networkx_edge_labels(G, pos, edge_labels<span class="op">=</span>labels)</span>
+<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Візуалізація графа з вагами ребер"</span>)</span>
+<span id="cb25-24"><a href="#cb25-24" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-26"><a href="#cb25-26" aria-hidden="true" tabindex="-1"></a>length, path <span class="op">=</span> nx.single_source_dijkstra(G, <span class="dv">1</span>)</span>
+<span id="cb25-27"><a href="#cb25-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-28"><a href="#cb25-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Виводимо довжину найкоротшого шляху від вершини 1 до вершини 4</span></span>
+<span id="cb25-29"><a href="#cb25-29" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(length[<span class="dv">4</span>])</span>
+<span id="cb25-30"><a href="#cb25-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-31"><a href="#cb25-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Виводимо всі довжини найкоротших шляхів від вершини 1 до всіх інших вершин</span></span>
+<span id="cb25-32"><a href="#cb25-32" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(length)</span>
+<span id="cb25-33"><a href="#cb25-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-34"><a href="#cb25-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Знаходимо найкоротший шлях від вершини 2 до всіх інших вершин та їх довжини</span></span>
+<span id="cb25-35"><a href="#cb25-35" aria-hidden="true" tabindex="-1"></a>nx.single_source_dijkstra(G, source<span class="op">=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="amo_lab_8_quarto_files/figure-html/cell-17-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>15
+{1: 0, 3: 10, 4: 15, 5: 20, 2: 35}</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="174">
+<pre><code>({2: 0, 3: 25, 4: 30, 5: 35, 1: 35},
+ {2: [2], 3: [2, 3], 4: [2, 4], 5: [2, 5], 1: [2, 3, 1]})</code></pre>
+</div>
+</div>
+<p>Алгоритм Белмана-Форда</p>
+<div id="cell-46" class="cell" data-tags="[]" data-execution_count="176">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> networkx <span class="im">as</span> nx</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Створюємо граф G (шляховий граф з 5 вершинами)</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>G <span class="op">=</span> nx.Graph()</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Додаємо ребра з вагами</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>edges <span class="op">=</span> [(<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">10</span>), (<span class="dv">1</span>,<span class="dv">4</span>,<span class="dv">15</span>), (<span class="dv">1</span>,<span class="dv">5</span>,<span class="dv">20</span>), (<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">25</span>), (<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">30</span>), (<span class="dv">2</span>,<span class="dv">5</span>,<span class="dv">35</span>)]</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Додаємо ребра з вагами до графа</span></span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> edge <span class="kw">in</span> edges:</span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>    G.add_edge(edge[<span class="dv">0</span>], edge[<span class="dv">1</span>], weight<span class="op">=</span>edge[<span class="dv">2</span>])</span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Знаходимо найкоротший шлях від вершини 1 до всіх інших вершин та їх довжини</span></span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>length <span class="op">=</span> nx.single_source_bellman_ford_path_length(G, <span class="dv">1</span>)</span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Виводимо довжину найкоротшого шляху від вершини 1 до вершини 4</span></span>
+<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(length[<span class="dv">4</span>])</span>
+<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Виводимо всі довжини найкоротших шляхів від вершини 0 до всіх інших вершин</span></span>
+<span id="cb28-20"><a href="#cb28-20" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(length)</span>
+<span id="cb28-21"><a href="#cb28-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-22"><a href="#cb28-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Знаходимо найкоротший шлях від вершини 2 до всіх інших вершин та їх довжини</span></span>
+<span id="cb28-23"><a href="#cb28-23" aria-hidden="true" tabindex="-1"></a>nx.single_source_bellman_ford_path_length(G, source<span class="op">=</span><span class="dv">2</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>15
+{1: 0, 3: 10, 4: 15, 5: 20, 2: 35}</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="176">
+<pre><code>{2: 0, 3: 25, 4: 30, 5: 35, 1: 35}</code></pre>
+</div>
+</div>
+<p>Пошук в глибину DFS</p>
+<div id="cell-48" class="cell" data-tags="[]" data-execution_count="179">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Виклик magic-команди, яка автоматично відображає графіки у рядку</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>matplotlib inline</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Імпорт необхідних бібліотек</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> networkx <span class="im">as</span> nx</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>G <span class="op">=</span> nx.Graph()</span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Додаємо ребра з вагами</span></span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>edges <span class="op">=</span> [(<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">10</span>), (<span class="dv">1</span>,<span class="dv">4</span>,<span class="dv">15</span>), (<span class="dv">1</span>,<span class="dv">5</span>,<span class="dv">20</span>), (<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">25</span>), (<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">30</span>), (<span class="dv">2</span>,<span class="dv">5</span>,<span class="dv">35</span>)]</span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Додаємо ребра з вагами до графа</span></span>
+<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> edge <span class="kw">in</span> edges:</span>
+<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a>    G.add_edge(edge[<span class="dv">0</span>], edge[<span class="dv">1</span>], weight<span class="op">=</span>edge[<span class="dv">2</span>])</span>
+<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Визначення позицій вершин для відображення графа</span></span>
+<span id="cb31-18"><a href="#cb31-18" aria-hidden="true" tabindex="-1"></a>pos <span class="op">=</span> nx.spring_layout(G)</span>
+<span id="cb31-19"><a href="#cb31-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-20"><a href="#cb31-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Візуалізація вершин та їх міток</span></span>
+<span id="cb31-21"><a href="#cb31-21" aria-hidden="true" tabindex="-1"></a>nx.draw_networkx_nodes(G, pos, node_size<span class="op">=</span><span class="dv">700</span>)</span>
+<span id="cb31-22"><a href="#cb31-22" aria-hidden="true" tabindex="-1"></a>nx.draw_networkx_labels(G, pos, font_size<span class="op">=</span><span class="dv">20</span>, font_family<span class="op">=</span><span class="st">'sans-serif'</span>)</span>
+<span id="cb31-23"><a href="#cb31-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-24"><a href="#cb31-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Візуалізація ребер</span></span>
+<span id="cb31-25"><a href="#cb31-25" aria-hidden="true" tabindex="-1"></a>nx.draw_networkx_edges(G, pos, edgelist<span class="op">=</span>G.edges())</span>
+<span id="cb31-26"><a href="#cb31-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-27"><a href="#cb31-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Показ графіка</span></span>
+<span id="cb31-28"><a href="#cb31-28" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="amo_lab_8_quarto_files/figure-html/cell-19-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<div id="cell-49" class="cell" data-tags="[]" data-execution_count="180">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Функція dfs використовує алгоритм пошуку в глибину (DFS) для обходу графа.</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Починаючи з вершини start, вона відвідує всі вершини графа, до яких можна дійти з цієї вершини,</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="co"># та повертає список відвіданих вершин.</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> dfs(graph, start, visited<span class="op">=</span><span class="va">None</span>):</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> visited <span class="kw">is</span> <span class="va">None</span>:</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>        visited <span class="op">=</span> <span class="bu">set</span>()  <span class="co"># Створюємо пустий набір для збереження відвіданих вершин</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>    visited.add(start)  <span class="co"># Додаємо поточну вершину до відвіданих</span></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Перебираємо всі сусідні вершини поточної вершини</span></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="bu">next</span> <span class="kw">in</span> <span class="bu">set</span>(graph.adj[start].keys()) <span class="op">-</span> visited:</span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Рекурсивно викликаємо функцію dfs для наступної вершини</span></span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>        dfs(graph, <span class="bu">next</span>, visited)</span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> visited</span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Викликаємо функцію dfs з графом G та початковою вершиною '3'</span></span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a>dfs(G, <span class="dv">3</span>)</span>
+<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Функція dfs_paths також використовує алгоритм пошуку в глибину (DFS),</span></span>
+<span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a><span class="co"># але вона знаходить всі можливі шляхи з початкової вершини до цільової вершини.</span></span>
+<span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Параметр path використовується для зберігання поточного шляху.</span></span>
+<span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> dfs_paths(graph, start, goal, path<span class="op">=</span><span class="va">None</span>):</span>
+<span id="cb32-21"><a href="#cb32-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> path <span class="kw">is</span> <span class="va">None</span>:</span>
+<span id="cb32-22"><a href="#cb32-22" aria-hidden="true" tabindex="-1"></a>        path <span class="op">=</span> [start]  <span class="co"># Починаємо з початкової вершини</span></span>
+<span id="cb32-23"><a href="#cb32-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> start <span class="op">==</span> goal:</span>
+<span id="cb32-24"><a href="#cb32-24" aria-hidden="true" tabindex="-1"></a>        <span class="cf">yield</span> path  <span class="co"># Якщо досягли цільової вершини, повертаємо шлях</span></span>
+<span id="cb32-25"><a href="#cb32-25" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Перебираємо всі сусідні вершини поточної вершини, які ще не відвідані</span></span>
+<span id="cb32-26"><a href="#cb32-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="bu">next</span> <span class="kw">in</span> <span class="bu">set</span>(graph.adj[start].keys()) <span class="op">-</span> <span class="bu">set</span>(path):</span>
+<span id="cb32-27"><a href="#cb32-27" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Рекурсивно викликаємо функцію dfs_paths для наступної вершини</span></span>
+<span id="cb32-28"><a href="#cb32-28" aria-hidden="true" tabindex="-1"></a>        <span class="cf">yield</span> <span class="cf">from</span> dfs_paths(graph, <span class="bu">next</span>, goal, path <span class="op">+</span> [<span class="bu">next</span>])</span>
+<span id="cb32-29"><a href="#cb32-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-30"><a href="#cb32-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Викликаємо функцію dfs_paths з графом G, початковою вершиною '3' та цільовою вершиною '5'</span></span>
+<span id="cb32-31"><a href="#cb32-31" aria-hidden="true" tabindex="-1"></a><span class="bu">list</span>(dfs_paths(G, <span class="dv">3</span>, <span class="dv">5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="180">
+<pre><code>[[3, 1, 4, 2, 5], [3, 1, 5], [3, 2, 4, 1, 5], [3, 2, 5]]</code></pre>
+</div>
+</div>
+<p>Пошук в ширину BFS</p>
+<div id="cell-51" class="cell" data-tags="[]" data-execution_count="182">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> bfs_paths(graph, start, goal):</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Створення черги з початковою вершиною та її шляхом</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>    queue <span class="op">=</span> [(start, [start])]</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Поки черга не порожня</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> queue:</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Вибір вершини та її шляху спочатку черги</span></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>        (vertex, path) <span class="op">=</span> queue.pop(<span class="dv">0</span>)</span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Для кожної сусідньої вершини</span></span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> <span class="bu">next</span> <span class="kw">in</span> <span class="bu">set</span>(graph.adj[vertex].keys()) <span class="op">-</span> <span class="bu">set</span>(path):</span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Якщо сусідня вершина є цільовою</span></span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="bu">next</span> <span class="op">==</span> goal:</span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a>                <span class="co"># Повернення шляху, якщо досягнуто цільову вершину</span></span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a>                <span class="cf">yield</span> path <span class="op">+</span> [<span class="bu">next</span>]</span>
+<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span>:</span>
+<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a>                <span class="co"># Додавання сусідньої вершини та нового шляху в чергу</span></span>
+<span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a>                queue.append((<span class="bu">next</span>, path <span class="op">+</span> [<span class="bu">next</span>]))</span>
+<span id="cb34-17"><a href="#cb34-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Виведення усіх шляхів від вершини '1' до вершини '5' за допомогою пошуку в ширину</span></span>
+<span id="cb34-18"><a href="#cb34-18" aria-hidden="true" tabindex="-1"></a><span class="bu">list</span>(bfs_paths(G, <span class="dv">1</span>, <span class="dv">5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="182">
+<pre><code>[[1, 5], [1, 3, 2, 5], [1, 4, 2, 5]]</code></pre>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="завдання-на-лабораторну-роботу" class="level2">
+<h2 class="anchored" data-anchor-id="завдання-на-лабораторну-роботу">Завдання на лабораторну роботу</h2>
+<ol type="1">
+<li>Створити Notebook-документ і реалізувати приклади, що розглядаються у цій роботі, та виконати завдання до самостійної роботи.</li>
+<li>Надати відповіді на контрольні питання.</li>
+<li>Робочий документ оформити у вигляді Notebook-документа (файл .ipynb).</li>
+<li>Скомпілювати звіт у форматі .html. Для цього необхідно завантажити термінал у робочому каталозі й у командному рядку запустити таку коман ду: jupyter nbconvert lab_8_StudentLastName.ipynb –to</li>
+</ol>
+<p>html або, якщо наявна робота з налагодженим середовищем Qu arto: quarto preview lab_8_StudentLastName</p>
+<p>ipynb Проєкт має складатися мінімум з двох файлів: lab_8_StudentLastName.ipynb та lab_8_StudentLastName .5tml. 5. Дати відповіді на контрольні запитання.</p>
+</section>
+<section id="контрольні-запитання" class="level2">
+<h2 class="anchored" data-anchor-id="контрольні-запитання">Контрольні запитання</h2>
+<ol type="1">
+<li>Що таке граф у термінах теорії графів? Наведіть приклади реальних ситуацій, де можна застосовувати графи.</li>
+</ol>
+<p>Граф — це сукупність об’єктів із зв’язками між ними. Графи застосовуються в географічни картах (побудова оптимального шляху), мікросхемах, комп’ютерних мережах (побудова модель мережі, визначення оптимальних маршрутів, критичних вузлів), соціальна мережа.</p>
+<ol start="2" type="1">
+<li>Які головні види графів існують? Наведіть відмінності між орієнтованими і неорієнтованими графами.</li>
+</ol>
+<p>Основні види: орієнтований, неорієнтований, ациклічний. У орієнтованому графі ребра мають напрямок.</p>
+<ol start="3" type="1">
+<li>Як можна подати граф у пам’яті комп’ютера? Опишіть структури даних, які використовуються для зберігання графів.</li>
+</ol>
+<p>Граф можна подати у вигляді матриці суміжності та списку суміжності.</p>
+<ol start="4" type="1">
+<li>Як працює алгоритм пошуку в ширину (BFS) на графах? Наведіть приклади ситуацій, де застосовується цей алгоритм.</li>
+</ol>
+<ul>
+<li><p>Пошук у ширину – це метод обходу графа та пошуку шляхів у ньому. Він відповідає за послідовний перегляд рівнів графа, розпочинаючи з вихідного вузла <span class="math inline">\(u\)</span>.</p></li>
+<li><p>На кожному кроці алгоритму розглядаються всі ребра$ (u,v<span class="math inline">\(), що виходять з вузла\)</span> <span class="math inline">\(u. Якщо наступний вузол\)</span> $v є цільовим вузлом, то пошук завершується</p></li>
+<li><p>в іншому випадку вузол$ <span class="math inline">\(v додається в чергу для подальшого розгляду. Після перевірки всіх ребер, що виходять з вузла\)</span> <span class="math inline">\(u, з черги вилучається наступний вузол\)</span> $u, і процес повторюється.</p></li>
+</ul>
+<p>Використовується для пошуку шляхів, пошук оптимального шляху.</p>
+<ol start="5" type="1">
+<li>Що таке алгоритм пошуку в глибину (DFS) на графах? Як він відрізняється від BFS? Надайте приклади задач, де використовується DFS.</li>
+</ol>
+<p>Стратегія пошуку в глибину полягає у тому, щоб проникнути «вглиб» графа настільки, наскільки це можливо. Під час виконання алгоритму пошуку використовується рекурсивний підхід: перебираються всі ребра, що виходять з поточної вершини. Якщо ребро вказує на вершину, яка ще не була розглянута, то запускається алгоритм пошуку від цієї нової вершини.</p>
+<p>В BFS ми розглядаємо усі ребра, а в DFS ми йдемо в максимально вглиб по одній лінії, і тільки потім повертаємось до інших вершин.</p>
+<p>Використовується в пошуку шляху або циклу в графі, у визначенні компонентів зв’язності граф, пошуку компонентів сильної зв’язності в орграфі, визначенні артикуляційних вершин та мостів в графі, топологічному сортуванні.</p>
+<ol start="6" type="1">
+<li>Опишіть алгоритм Дейкстри для пошуку найкоротшого шляху в графі. Які умови повинні виконуватися для успішної роботи цього алгоритму?</li>
+</ol>
+<p>Принцип роботи:</p>
+<p>Ініціалізуємо масив Найкоротший[ ] так, що Найкоротший[s] = 0, а Найкоротший[v] = нескінченність для всіх інших вершин v.</p>
+<p>Ініціалізуємо чергу з пріоритетами Q, додаючи всі вершини графа разом з відстанню до них у Найкоротший[].</p>
+<p>Доки черга Q не порожня: Вилучаємо вершину u з найменшою відстанню з Q. Для кожного сусіднього вузла v з вершини u: – Викликаємо процедуру Релаксація(u, v), яка: – Якщо Найкоротший[u] + вага(u, v) &lt; Найкоротший[v]: – Зменшуємо ключ Q для вершини v на нову відстань (Найкоротший[u] + вага(u, v)).</p>
+<p>По завершенні алгоритму масив Найкоротший[] містить найкоротші відстані від вершини 𝑠 до всіх інших вершин графа.</p>
+<p>Граф не повинен містити циклів з від’ємною вагою.</p>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
